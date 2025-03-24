@@ -1,6 +1,5 @@
 const Glugose = require("../model/Glugose");
-const mongoose = require("mongoose");
-const Patient = require("../model/Patient");
+const User = require("../model/User1");
 
 const saveReading = async (user, value, type) => {
   const patientId = user.userId;
@@ -11,7 +10,7 @@ const saveReading = async (user, value, type) => {
   //   throw new Error("invalid patient iddd");
   // }
 
-  const patient = await Patient.findOne({ patientId });
+  const patient = await User.findById(patientId);
   console.log("Patient found:", patient);
   if (!patient) {
     throw new Error("Patient not found");

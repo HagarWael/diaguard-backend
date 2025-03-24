@@ -5,7 +5,7 @@ const GlugoseSchema = mongoose.Schema({
   value: { type: Number, required: true },
   type: { type: String, enum: ["before", "after"], required: true },
   date: { type: Date, default: Date.now },
-  Patient: {
+  patient: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Patient",
     required: true,
