@@ -7,6 +7,6 @@ const {
 const router = express.Router();
 
 router.post("/save-reading", verifyToken, saveReadingController);
-router.get("/get-readings", getReadingsController);
+router.get("/get-readings", verifyToken, getReadingsController);
 
 module.exports = router;

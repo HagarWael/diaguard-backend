@@ -23,13 +23,11 @@ const saveReading = async (user, value, type) => {
   return { message: "Reading saved successfully", reading: newReading };
 };
 
-const getReadings = async (user) => {
-  const patientId = user.userId;
-
-  const readings = await Glugose.find({ patient: patientId }).sort({
-    date: -1,
-  });
-  return { readings };
+const getReadings = async (patientId) => {
+  console.log(patientId);
+  const readings = await Glugose.find({ patient: patientId });
+  console.log(readings);
+  return readings;
 };
 
 module.exports = { saveReading, getReadings };

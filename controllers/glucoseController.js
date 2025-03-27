@@ -17,7 +17,7 @@ const saveReadingController = async (req, res) => {
 };
 
 const getReadingsController = async (req, res) => {
-  const { patientId } = req.query;
+  const patientId = req.user.userId;
 
   try {
     const result = await getReadings(patientId);
