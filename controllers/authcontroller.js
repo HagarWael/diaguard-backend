@@ -16,4 +16,21 @@ const loginUser = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-module.exports = { registeredUser, loginUser };
+
+const logout = async (req, res) => {
+  try {
+    const token = req.header("Authorization");
+    if (!token) {
+      return res.status(400).json({ message: "no token found" });
+    }
+
+    await authService.logoutUser(token);
+
+    res.status(200).json({ message: "User logged out successfully" });
+  } catch (err) {
+    console.error("Logout error:", err);
+    res.status(500).json({ message: "error" });
+  }
+};
+
+module.exports = { registeredUser, loginUser, logout };
