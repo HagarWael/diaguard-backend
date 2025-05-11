@@ -5,22 +5,52 @@ const secret = process.env.JWT_SECRET;
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
 require("dotenv").config();
-
-const registeredUser = async ({ fullname, email, password, role }) => {
+const registeredUser = async ({ fullname, email, password, role, Code }) => {
   let user = await User.findOne({ email });
   if (user) throw new Error("User already exists");
 
   const hashedPass = await bcrypt.hash(password, 10);
-  if (role === "patient" || role === "doctor") {
-    user = new User({ fullname, email, password: hashedPass, role });
+
+  if (role === "doctor") {
+    const chars =
+      "asdfghjklpoiuytrewqzxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM1234567890";
+    const randomString = [...chars]
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 6)
+      .join("");
+    console.log("Received data:", { fullname, email, password, role });
+
+    user = new Doctor({
+      fullname,
+      email,
+      password: hashedPass,
+      role,
+      Code: randomString,
+    });
+
+    await user.save();
+  } else if (role === "patient") {
+    const doctor = await Doctor.findOne({ Code });
+    if (!doctor) {
+      throw new Error("Invalid doctor code");
+    }
+
+    user = new Patient({
+      fullname,
+      email,
+      password: hashedPass,
+      role,
+      doctor: doctor._id,
+    });
+
+    await user.save();
+    await Doctor.updateOne(
+      { _id: doctor._id },
+      { $push: { patients: user._id } }
+    );
   } else {
-    console.log("invalid role:", role);
     throw new Error("Invalid role");
   }
-
-  await user.save();
-  console.log("user registered:", user);
-
   const token = jwt.sign(
     { userId: user._id, email: user.email },
     process.env.JWT_SECRET,
@@ -29,7 +59,6 @@ const registeredUser = async ({ fullname, email, password, role }) => {
 
   return { message: "user registered successfully", token, user };
 };
-
 const loginUser = async ({ email, password }) => {
   let user = await User.findOne({ email });
   if (!user) {
