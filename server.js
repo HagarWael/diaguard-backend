@@ -10,11 +10,38 @@ app.use(cors());
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const glucoseRoutes = require("./routes/glucoseRoutes");
+const doctorRoutes = require("./routes/DoctorRoutes");
+const questionRoutes = require("./routes/questionRoutes");
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: "Something went wrong!",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+  });
+});
+
+// Connect to MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/diaguard")
-  .then(() => console.log("connected"))
-  .catch((err) => console.log("not connected "));
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/diaguard")
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
+// Routes
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/api", glucoseRoutes);
-app.listen(3000);
+app.use("/doctors", doctorRoutes);
+app.use("/questions", questionRoutes);
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

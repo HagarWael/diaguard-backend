@@ -1,7 +1,7 @@
-const User = require("../models/User");
+const User = require("../model/User1");
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
-const Message = require("../model/Message");
+//const Message = require("../model/Message");
 const Glucose = require("../model/Glugose");
 
 const getPatientsByDoctorCode = async (Code) => {
