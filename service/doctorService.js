@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
+const Message = require("../model/Message");
+const Glucose = require("../model/Glugose");
 
 const getPatientsByDoctorCode = async (Code) => {
   try {
@@ -12,4 +14,117 @@ const getPatientsByDoctorCode = async (Code) => {
   }
 };
 
-module.exports = { getPatientsByDoctorCode };
+const getPatients = async (doctorId) => {
+  try {
+    const doctor = await Doctor.findById(doctorId).populate({
+      path: "patients",
+      select: "name email phone emergencyContact",
+    });
+
+    if (!doctor) {
+      throw new Error("Doctor not found");
+    }
+
+    // Get the last glucose reading for each patient
+    const patientsWithReadings = await Promise.all(
+      doctor.patients.map(async (patient) => {
+        const lastReading = await Glucose.findOne(
+          { patient: patient._id },
+          { value: 1, type: 1 }
+        )
+          .sort({ date: -1 })
+          .limit(1);
+
+        return {
+          _id: patient._id,
+          name: patient.name,
+          lastReading: lastReading
+            ? {
+                value: lastReading.value,
+                type: lastReading.type,
+              }
+            : null,
+        };
+      })
+    );
+
+    return patientsWithReadings;
+  } catch (error) {
+    throw new Error("Error fetching patients");
+  }
+};
+
+const getPatient = async (doctorId, patientId) => {
+  try {
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      throw new Error("Doctor not found");
+    }
+
+    if (!doctor.patients.includes(patientId)) {
+      throw new Error("Patient not associated with this doctor");
+    }
+
+    const patient = await User.findById(patientId).select("-password");
+    return patient;
+  } catch (error) {
+    throw new Error("Error fetching patient details");
+  }
+};
+
+const sendMessage = async (doctorId, patientId, message) => {
+  try {
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      throw new Error("Doctor not found");
+    }
+
+    if (!doctor.patients.includes(patientId)) {
+      throw new Error("Patient not associated with this doctor");
+    }
+
+    const newMessage = new Message({
+      sender: doctorId,
+      receiver: patientId,
+      content: message,
+      senderType: "doctor",
+    });
+
+    await newMessage.save();
+    return newMessage;
+  } catch (error) {
+    throw new Error("Error sending message");
+  }
+};
+
+const getMessages = async (doctorId, patientId) => {
+  try {
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      throw new Error("Doctor not found");
+    }
+
+    if (!doctor.patients.includes(patientId)) {
+      throw new Error("Patient not associated with this doctor");
+    }
+
+    const messages = await Message.find({
+      $or: [
+        { sender: doctorId, receiver: patientId },
+        { sender: patientId, receiver: doctorId },
+      ],
+    }).sort({ createdAt: 1 });
+
+    return messages;
+  } catch (error) {
+    throw new Error("Error fetching messages");
+  }
+};
+
+module.exports = {
+  getPatientsByDoctorCode,
+  getPatients,
+  getPatient,
+  sendMessage,
+  getMessages,
+};

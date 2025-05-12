@@ -10,6 +10,11 @@ const userSchema = mongoose.Schema(
       required: true,
       enum: ["patient", "doctor"],
     },
+    emergencyContact: {
+      name: { type: String },
+      phone: { type: String },
+      relationship: { type: String },
+    },
     question: [
       {
         questionText: String,

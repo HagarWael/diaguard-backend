@@ -5,7 +5,15 @@ const secret = process.env.JWT_SECRET;
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
 require("dotenv").config();
-const registeredUser = async ({ fullname, email, password, role, Code }) => {
+
+const registeredUser = async ({
+  fullname,
+  email,
+  password,
+  role,
+  Code,
+  emergencyContact,
+}) => {
   let user = await User.findOne({ email });
   if (user) throw new Error("User already exists");
 
@@ -35,12 +43,26 @@ const registeredUser = async ({ fullname, email, password, role, Code }) => {
       throw new Error("Invalid doctor code");
     }
 
+    // Validate emergency contact information
+    if (
+      !emergencyContact ||
+      !emergencyContact.name ||
+      !emergencyContact.phone
+    ) {
+      throw new Error("Emergency contact information is required for patients");
+    }
+
     user = new Patient({
       fullname,
       email,
       password: hashedPass,
       role,
       doctor: doctor._id,
+      emergencyContact: {
+        name: emergencyContact.name,
+        phone: emergencyContact.phone,
+        relationship: emergencyContact.relationship || "Family Member",
+      },
     });
 
     await user.save();
@@ -59,6 +81,7 @@ const registeredUser = async ({ fullname, email, password, role, Code }) => {
 
   return { message: "user registered successfully", token, user };
 };
+
 const loginUser = async ({ email, password }) => {
   let user = await User.findOne({ email });
   if (!user) {
@@ -90,6 +113,7 @@ const loginUser = async ({ email, password }) => {
     },
   };
 };
+
 const logoutUser = async (token) => {
   const expiredToken = new ExpiredToken({ token });
   await expiredToken.save();
