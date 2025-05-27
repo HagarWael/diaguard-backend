@@ -3,7 +3,7 @@ const Doctor = require("../model/Doctor");
 
 const getPatients = async (req, res) => {
   try {
-    const patients = await doctorService.getPatients(req.user._id);
+    const patients = await doctorService.getPatients(req.user.userId);
     res.status(200).json({ status: "success", patients });
   } catch (error) {
     res.status(500).json({ status: "failed", message: error.message });

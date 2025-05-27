@@ -5,13 +5,18 @@ const checkRole = require("../middleware/checkRole");
 const doctorController = require("../controllers/doctorController");
 
 // Patient management
-router.get("/patients", verifyToken, checkRole, doctorController.getPatients);
+router.get(
+  "/patients",
+  verifyToken,
+  checkRole(["doctor"]),
+  doctorController.getPatients
+);
 
 // Patient monitoring
 router.get(
-  "/patients/:patientId",
+  "/list-patients",
   verifyToken,
-  checkRole,
+  checkRole(["doctor"]),
   doctorController.getPatient
 );
 
@@ -19,13 +24,13 @@ router.get(
 router.post(
   "/patients/:patientId/messages",
   verifyToken,
-  checkRole,
+  checkRole(["doctor"]),
   doctorController.sendMessage
 );
 router.get(
   "/patients/:patientId/messages",
   verifyToken,
-  checkRole,
+  checkRole(["doctor"]),
   doctorController.getMessages
 );
 

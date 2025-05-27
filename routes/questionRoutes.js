@@ -8,13 +8,13 @@ const questionController = require("../controllers/questionController");
 router.post(
   "/:questionId/answers",
   verifyToken,
-  checkRole,
+  checkRole(["patient"]),
   questionController.addAnswers
 );
 router.put(
   "/:questionId/answers/:answerId",
   verifyToken,
-  checkRole,
+  checkRole(["patient"]),
   questionController.updateAnswers
 );
 
