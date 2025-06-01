@@ -18,7 +18,7 @@ const getPatients = async (doctorId) => {
   try {
     const doctor = await Doctor.findById(doctorId).populate({
       path: "patients",
-      select: "name email phone emergencyContact",
+      select: "fullname email phone emergencyContact",
     });
 
     if (!doctor) {
@@ -37,7 +37,7 @@ const getPatients = async (doctorId) => {
 
         return {
           _id: patient._id,
-          name: patient.name,
+          name: patient.fullname,
           lastReading: lastReading
             ? {
                 value: lastReading.value,
