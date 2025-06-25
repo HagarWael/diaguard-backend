@@ -13,6 +13,7 @@ const registeredUser = async ({
   role,
   Code,
   emergencyContact,
+  questions,
 }) => {
   let user = await User.findOne({ email });
   if (user) throw new Error("User already exists");
@@ -63,6 +64,7 @@ const registeredUser = async ({
         phone: emergencyContact.phone,
         relationship: emergencyContact.relationship || "Family Member",
       },
+      question: Array.isArray(questions) ? questions : [],
     });
 
     await user.save();

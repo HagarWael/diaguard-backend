@@ -1,8 +1,8 @@
 const Glugose = require("../model/Glugose");
-const User = require("../model/User1");
+const Patient = require("../model/Patient");
 
 const saveReading = async (user, value, type) => {
-  const patientId = user.userId;
+  const patientId = user._id;
 
   console.log("searching for patient with id:", patientId);
 
@@ -10,7 +10,7 @@ const saveReading = async (user, value, type) => {
   //   throw new Error("invalid patient iddd");
   // }
 
-  const patient = await User.findById(patientId);
+  const patient = await Patient.findById(patientId);
   console.log("Patient found:", patient);
   if (!patient) {
     throw new Error("Patient not found");
@@ -20,7 +20,12 @@ const saveReading = async (user, value, type) => {
   const newReading = new Glugose({ value, type, patient: patientId });
   await newReading.save();
 
-  return { message: "Reading saved successfully", reading: newReading };
+  // Remove points logic
+
+  return {
+    message: "Reading saved successfully",
+    reading: newReading,
+  };
 };
 
 const getReadings = async (patientId) => {

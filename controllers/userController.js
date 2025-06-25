@@ -1,4 +1,5 @@
 const userService = require("../service/userService");
+const User = require("../model/User1");
 
 const getUserProfile = async (req, res) => {
   try {
@@ -59,9 +60,32 @@ const deleteAccount = async (req, res) => {
   }
 };
 
+const saveAnswers = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const answers = req.body.answers; // [{questionText, answer}, ...]
+    await User.findByIdAndUpdate(userId, { $set: { question: answers } });
+    res.json({ message: "Answers saved successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const getAnswers = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    res.json({ answers: user.question || [] });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   getUserProfile,
   updateUserProfile,
   changePassword,
   deleteAccount,
+  saveAnswers,
+  getAnswers,
 };

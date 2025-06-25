@@ -1,4 +1,5 @@
 const Question = require("../model/Question");
+const User = require("../model/User1");
 
 const addAnswer = async (questionId, userId, answer) => {
   try {
@@ -49,7 +50,18 @@ const updateAnswer = async (questionId, answerId, userId, newAnswer) => {
   }
 };
 
+const saveAnswers = async (userId, answers) => {
+  await User.findByIdAndUpdate(userId, { $set: { question: answers } });
+};
+
+const getAnswers = async (userId) => {
+  const user = await User.findById(userId);
+  return user.question || [];
+};
+
 module.exports = {
   addAnswer,
   updateAnswer,
+  saveAnswers,
+  getAnswers,
 };
