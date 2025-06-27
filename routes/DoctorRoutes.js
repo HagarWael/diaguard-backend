@@ -14,7 +14,7 @@ router.get(
 
 // Patient monitoring
 router.get(
-  "/list-patients",
+  "/patients/:patientId",
   verifyToken,
   checkRole(["doctor"]),
   doctorController.getPatient

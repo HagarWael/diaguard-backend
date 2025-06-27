@@ -34,7 +34,14 @@ const getPatients = async (doctorId) => {
         )
           .sort({ date: -1 })
           .limit(1);
-
+        console.log({_id: patient._id,
+          name: patient.fullname,
+          lastReading: lastReading
+            ? {
+                value: lastReading.value,
+                type: lastReading.type,
+              }
+            : null,})
         return {
           _id: patient._id,
           name: patient.fullname,
@@ -69,6 +76,43 @@ const getPatient = async (doctorId, patientId) => {
     return patient;
   } catch (error) {
     throw new Error("Error fetching patient details");
+  }
+};
+
+const getPatientWithGlucoseReadings = async (doctorId, patientId, startDate, endDate) => {
+  try {
+    console.log('getPatientWithGlucoseReadings called with:', { doctorId, patientId, startDate, endDate });
+    
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      throw new Error("Doctor not found");
+    }
+
+    if (!doctor.patients.includes(patientId)) {
+      throw new Error("Patient not associated with this doctor");
+    }
+
+    const patient = await User.findById(patientId).select("-password");
+    console.log('Patient found:', patient ? 'yes' : 'no');
+    
+    // Get glucose readings within the date range
+    const glucoseReadings = await Glucose.find({
+      patient: patientId,
+      date: {
+        $gte: startDate,
+        $lte: endDate
+      }
+    }).sort({ date: 1 });
+    
+    console.log('Glucose readings found:', glucoseReadings.length);
+
+    return {
+      patient,
+      glucoseReadings
+    };
+  } catch (error) {
+    console.error('Error in getPatientWithGlucoseReadings:', error);
+    throw new Error("Error fetching patient details and glucose readings");
   }
 };
 
@@ -125,6 +169,7 @@ module.exports = {
   getPatientsByDoctorCode,
   getPatients,
   getPatient,
+  getPatientWithGlucoseReadings,
   sendMessage,
   getMessages,
 };

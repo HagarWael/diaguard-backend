@@ -4,6 +4,7 @@ const User = require("../model/User1");
 const secret = process.env.JWT_SECRET;
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
+const ExpiredToken = require("../model/expiredToken");
 require("dotenv").config();
 
 const registeredUser = async ({
@@ -36,6 +37,7 @@ const registeredUser = async ({
       role,
       Code: randomString,
     });
+    console.log(user);
 
     await user.save();
   } else if (role === "patient") {
@@ -80,13 +82,14 @@ const registeredUser = async ({
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
+  console.log(token);
 
   return { message: "user registered successfully", token, user };
 };
 
-const loginUser = async ({ email, password }) => {
+const loginUser = async ({ email, password, role }) => {
   let user = await User.findOne({ email });
-  if (!user) {
+  if (!user || user.role != role) {
     console.log("user not found in the database");
     return { error: "incorrect username or password" };
   }
@@ -118,6 +121,7 @@ const loginUser = async ({ email, password }) => {
 
 const logoutUser = async (token) => {
   const expiredToken = new ExpiredToken({ token });
+  console.log(expiredToken);
   await expiredToken.save();
   return { message: "logout successfully" };
 };
