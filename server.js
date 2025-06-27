@@ -12,6 +12,7 @@ const userRoutes = require("./routes/userRoutes");
 const glucoseRoutes = require("./routes/glucoseRoutes");
 const doctorRoutes = require("./routes/DoctorRoutes");
 const questionRoutes = require("./routes/questionRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 // Connect to MongoDB
 mongoose
@@ -25,6 +26,7 @@ app.use("/users", userRoutes);
 app.use("/api", glucoseRoutes);
 app.use("/doctors", doctorRoutes);
 app.use("/questions", questionRoutes);
+app.use("/chat", chatRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -42,6 +44,10 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// Initialize WebSocket
+const { initializeSocket } = require("./config/socket");
+initializeSocket(server);

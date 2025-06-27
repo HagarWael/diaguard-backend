@@ -27,6 +27,7 @@ router.post(
   checkRole(["doctor"]),
   doctorController.sendMessage
 );
+
 router.get(
   "/patients/:patientId/messages",
   verifyToken,

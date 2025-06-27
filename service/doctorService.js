@@ -1,7 +1,7 @@
 const User = require("../model/User1");
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
-//const Message = require("../model/Message");
+const Message = require("../model/Message");
 const Glucose = require("../model/Glugose");
 
 const getPatientsByDoctorCode = async (Code) => {
@@ -131,7 +131,7 @@ const sendMessage = async (doctorId, patientId, message) => {
       sender: doctorId,
       receiver: patientId,
       content: message,
-      senderType: "doctor",
+      messageType: "text",
     });
 
     await newMessage.save();
