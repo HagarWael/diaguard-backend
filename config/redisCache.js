@@ -1,6 +1,6 @@
 const redis = require("async-redis");
-const client = redis.createClient(6379);
-
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const client = redis.createClient(redisUrl);
 const expirationTime = 600;
 
 async function setUserProfile(key, data) {

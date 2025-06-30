@@ -83,9 +83,18 @@ const saveAnswers = async (req, res) => {
 
 const getAnswers = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    // Default: get answers for the logged-in user
+    let userId = req.user.userId;
+
+    // If the logged-in user is a doctor and a userId is provided in the query, fetch for that patient
+    if (req.user.role === 'doctor' && req.query.userId) {
+      userId = req.query.userId;
+    }
+
     const user = await User.findById(userId);
-    res.json({ answers: user.question || [] });
+    console.log({ question: user.question });
+    res.json({ question: user.question || [] });
+    
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
